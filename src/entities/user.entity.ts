@@ -1,4 +1,5 @@
-import {Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, OneToMany} from 'typeorm'
+import {Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, OneToMany, BeforeInsert} from 'typeorm'
+import * as bc from 'bcrypt'
 
 @Entity({name:'users'})
 export class User {
@@ -15,8 +16,7 @@ export class User {
     password: string
 
     @Column({nullable: true})
-    profileImage?: string
-
+    profileImageUrl?: string
 
     @CreateDateColumn()
     createdAt: Date
@@ -24,6 +24,7 @@ export class User {
     @UpdateDateColumn()
     lastUpdatedAt: Date
 
+    //TODO Uncomment this section when each entity is created.
 
     // @OneToMany(() => Game, (game) => game.owner)
     // games: Game[]
@@ -33,4 +34,12 @@ export class User {
 
     @DeleteDateColumn({select: false})
     deletedAt: Date | null
+
+    @BeforeInsert()
+    async hashPassword(){
+        this.password = await bc.has(this.password, 10)
+    }
+
 }
+
+
