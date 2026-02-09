@@ -1,98 +1,227 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Gamebook – Backend API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+---
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Descripción general
+Gamebook es una API backend para una aplicación web tipo red social de juegos. Los usuarios pueden crear fichas de juegos, marcar juegos de otros usuarios como favoritos y puntuarlos.
 
-## Description
+El objetivo principal del proyecto es académico: aprender a diseñar e implementar un backend moderno con autenticación, autorización y una arquitectura pensada desde un enfoque Backend for Frontend (BFF), para luego conectarlo con un frontend en React.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Objetivos de aprendizaje
+* Diseñar un backend REST orientado a pantallas (BFF)
+* Implementar autenticación y autorización de forma correcta
+* Modelar relaciones reales en una base de datos relacional
+* Utilizar migrations para versionar el esquema de la base de datos
+* Conectar un backend con un frontend por primera vez
+* Comprender el flujo completo request → validación → lógica → respuesta
 
-## Project setup
+## Tecnologías utilizadas
 
-```bash
-$ pnpm install
-```
+### Backend
+* Node.js
+* NestJS
+   * Framework principal
+   * Uso de módulos, controllers, services y guards
+* TypeORM
+   * ORM para el mapeo de entidades
+   * Uso de migrations para el control del esquema
+* PostgreSQL
+   * Base de datos relacional principal
+* Docker
+   * Usado para levantar PostgreSQL en entorno local
+* JWT (JSON Web Tokens)
+   * Autenticación stateless
 
-## Compile and run the project
+## Enfoque Backend for Frontend (BFF)
+La API no expone directamente las entidades de base de datos. Cada endpoint devuelve DTOs orientados a las necesidades del frontend, reduciendo la cantidad de requests y evitando lógica de negocio en el cliente.
 
-```bash
-# development
-$ pnpm run start
+El backend se encarga de:
+* Centralizar la lógica de negocio
+* Aplicar reglas de autorización
+* Devolver datos listos para ser consumidos por la interfaz
 
-# watch mode
-$ pnpm run start:dev
+## Autenticación
+La autenticación se implementa mediante JWT.
 
-# production mode
-$ pnpm run start:prod
-```
+### Flujo general
+1. El usuario se registra o inicia sesión
+2. El backend valida las credenciales
+3. Se emite un JWT
+4. El frontend envía el token en cada request protegido
 
-## Run tests
+El token se envía en el header: `Authorization: Bearer <access_token>`
 
-```bash
-# unit tests
-$ pnpm run test
+## Autorización
+La autorización se basa en dos reglas principales:
 
-# e2e tests
-$ pnpm run test:e2e
+### Acceso autenticado
+Requiere que el usuario esté logueado:
+* Crear juegos
+* Puntuar juegos
+* Marcar juegos como favoritos
 
-# test coverage
-$ pnpm run test:cov
-```
+### Ownership (propiedad del recurso)
+Solo el autor de un juego puede:
+* Editarlo
+* Eliminarlo
 
-## Deployment
+Las validaciones de ownership se realizan en la capa de servicios, no en los controllers.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## Endpoints disponibles
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### Autenticación
+* `POST /auth/register` - Registro de usuario
+* `POST /auth/login` - Inicio de sesión y emisión de JWT
 
-```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
-```
+### Usuarios
+* `GET /users` - Lista de usuarios
+* `GET /users/:id/profile` - Perfil de usuario con información agregada (contadores, etc.)
+* `GET /users/:id/games` - Lista de juegos creados por el usuario
+* `GET /users/:id/favourites` - Lista de juegos marcados como favoritos por el usuario
+* `GET /users/:id/scores` - Lista de puntuaciones realizadas por el usuario
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Juegos
+* `GET /games` - Lista de todos los juegos
+* `GET /games/:id` - Detalle de un juego
+* `POST /games` - Crea un juego nuevo. Requiere autenticación. El autor se obtiene del token JWT
+* `PUT /games/:id` - Edita un juego existente. Requiere autenticación y ownership
 
-## Resources
+### Favoritos
+* `POST /favourites/:gameId` - Marca o desmarca un juego como favorito (toggle). Requiere autenticación. Un usuario no puede marcar el mismo juego como favorito más de una vez
 
-Check out a few resources that may come in handy when working with NestJS:
+### Scores
+* `POST /scores/:gameId` - Crea o actualiza la puntuación de un juego. Requiere autenticación. Un usuario solo puede puntuar un juego una vez
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## Persistencia y migrations
+* La base de datos principal es PostgreSQL
+* El esquema se controla mediante migrations de TypeORM
+* La opción `synchronize` está deshabilitada
+* Cada cambio en las entidades genera una migration nueva
+* Las migrations representan la historia del esquema y no se modifican una vez ejecutadas
 
-## Support
+## Alcance actual
+* Backend funcional
+* Autenticación y autorización implementadas
+* API preparada para ser consumida por un frontend en React
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## Posibles extensiones futuras
+* Feed de actividad (posible uso de NoSQL)
+* Comentarios o reviews
+* Sistema de roles (admin / moderador)
+* Refresh tokens
+* Storage externo para imágenes (S3 / MinIO)
 
-## Stay in touch
+---
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+# Gamebook – Backend API
 
-## License
+---
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## Overview
+Gamebook is a backend API for a game-focused social network web application. Users can create game entries, mark other users' games as favorites, and rate them.
+
+The main objective of the project is educational: learning how to design and implement a modern backend with authentication, authorization, and an architecture designed from a Backend for Frontend (BFF) approach, to later connect it with a React frontend.
+
+## Learning Objectives
+* Design a screen-oriented REST backend (BFF)
+* Implement authentication and authorization correctly
+* Model real-world relationships in a relational database
+* Use migrations to version the database schema
+* Connect a backend with a frontend for the first time
+* Understand the complete flow: request → validation → logic → response
+
+## Technologies Used
+
+### Backend
+* Node.js
+* NestJS
+   * Main framework
+   * Use of modules, controllers, services, and guards
+* TypeORM
+   * ORM for entity mapping
+   * Use of migrations for schema control
+* PostgreSQL
+   * Main relational database
+* Docker
+   * Used to run PostgreSQL in local environment
+* JWT (JSON Web Tokens)
+   * Stateless authentication
+
+## Backend for Frontend (BFF) Approach
+The API does not directly expose database entities. Each endpoint returns DTOs oriented to the frontend's needs, reducing the number of requests and avoiding business logic on the client side.
+
+The backend is responsible for:
+* Centralizing business logic
+* Applying authorization rules
+* Returning data ready to be consumed by the interface
+
+## Authentication
+Authentication is implemented using JWT.
+
+### General Flow
+1. User registers or logs in
+2. Backend validates credentials
+3. A JWT is issued
+4. Frontend sends the token in each protected request
+
+The token is sent in the header: `Authorization: Bearer <access_token>`
+
+## Authorization
+Authorization is based on two main rules:
+
+### Authenticated Access
+Requires the user to be logged in:
+* Create games
+* Rate games
+* Mark games as favorites
+
+### Ownership (Resource Ownership)
+Only the author of a game can:
+* Edit it
+* Delete it
+
+Ownership validations are performed in the service layer, not in controllers.
+
+## Available Endpoints
+
+### Authentication
+* `POST /auth/register` - User registration
+* `POST /auth/login` - Login and JWT issuance
+
+### Users
+* `GET /users` - List of users
+* `GET /users/:id/profile` - User profile with aggregated information (counters, etc.)
+* `GET /users/:id/games` - List of games created by the user
+* `GET /users/:id/favourites` - List of games marked as favorites by the user
+* `GET /users/:id/scores` - List of ratings made by the user
+
+### Games
+* `GET /games` - List of all games
+* `GET /games/:id` - Game details
+* `POST /games` - Creates a new game. Requires authentication. The author is obtained from the JWT token
+* `PUT /games/:id` - Edits an existing game. Requires authentication and ownership
+
+### Favorites
+* `POST /favourites/:gameId` - Marks or unmarks a game as favorite (toggle). Requires authentication. A user cannot mark the same game as favorite more than once
+
+### Scores
+* `POST /scores/:gameId` - Creates or updates a game rating. Requires authentication. A user can only rate a game once
+
+## Persistence and Migrations
+* The main database is PostgreSQL
+* The schema is controlled through TypeORM migrations
+* The `synchronize` option is disabled
+* Each change in entities generates a new migration
+* Migrations represent the schema history and are not modified once executed
+
+## Current Scope
+* Functional backend
+* Authentication and authorization implemented
+* API ready to be consumed by a React frontend
+
+## Possible Future Extensions
+* Activity feed (possible use of NoSQL)
+* Comments or reviews
+* Role system (admin / moderator)
+* Refresh tokens
+* External storage for images (S3 / MinIO)
