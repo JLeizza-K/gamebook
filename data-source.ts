@@ -1,5 +1,7 @@
 import { DataSource } from 'typeorm';
-import { User } from './src/entities/user.entity'; 
+import * as dotenv from 'dotenv'
+
+dotenv.config()
 
 export const AppDataSource = new DataSource({
     type: 'postgres',
@@ -8,6 +10,6 @@ export const AppDataSource = new DataSource({
     username: 'user',
     password: 'password',
     database: 'mi_db',
-    entities: [__dirname + '/**/*.entity{.ts}'],
-    migrations: [__dirname + '/migrations/*{.ts}'],
+    entities: ['dist/**/*.entity.js'],
+    migrations: ['dist/migrations/*.entity.js'],
 });
