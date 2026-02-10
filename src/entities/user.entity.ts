@@ -11,6 +11,7 @@ import {
 import * as bc from 'bcrypt';
 import { Score } from './score.entity';
 import { Game } from './game.entity';
+import { Favourite } from './favourite.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -35,13 +36,11 @@ export class User {
   @UpdateDateColumn()
   lastUpdatedAt: Date;
 
-  //TODO Uncomment this section when each entity is created.
-
   @OneToMany(() => Game, (game) => game.owner)
   games: Game[]
 
-  // @OneToMany(() => Favourite, (favourite) => favourite.user)
-  // favourites: Favourite[]
+ @OneToMany(() => Favourite, (favourite) => favourite.user)
+ favourites: Favourite[]
 
   
   @OneToMany(() => Score, (score) => score.user)
@@ -52,6 +51,6 @@ export class User {
 
   @BeforeInsert()
   async hashPassword() {
-    this.password = await bc.has(this.password, 10);
+    this.password = await bc.hashPassword(this.password, 10);
   }
 }
