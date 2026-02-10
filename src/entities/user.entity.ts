@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import * as bc from 'bcrypt';
 import { Score } from './score.entity';
-
+import { Game } from './game.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -37,8 +37,8 @@ export class User {
 
   //TODO Uncomment this section when each entity is created.
 
-  // @OneToMany(() => Game, (game) => game.owner)
-  // games: Game[]
+  @OneToMany(() => Game, (game) => game.owner)
+  games: Game[]
 
   // @OneToMany(() => Favourite, (favourite) => favourite.user)
   // favourites: Favourite[]
