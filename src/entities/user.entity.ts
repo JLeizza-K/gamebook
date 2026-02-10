@@ -37,20 +37,19 @@ export class User {
   lastUpdatedAt: Date;
 
   @OneToMany(() => Game, (game) => game.owner)
-  games: Game[]
+  games: Game[];
 
- @OneToMany(() => Favourite, (favourite) => favourite.user)
- favourites: Favourite[]
+  @OneToMany(() => Favourite, (favourite) => favourite.user)
+  favourites: Favourite[];
 
-  
   @OneToMany(() => Score, (score) => score.user)
-  scores: Score[]
+  scores: Score[];
 
   @DeleteDateColumn({ select: false })
   deletedAt: Date | null;
 
   @BeforeInsert()
   async hashPassword() {
-    this.password = await bc.hashPassword(this.password, 10);
+    this.password = await bc.hash(this.password, 10);
   }
 }
