@@ -5,11 +5,13 @@ import {
   DeleteDateColumn,
   UpdateDateColumn,
   CreateDateColumn,
+  Index,
 } from 'typeorm';
 import { User } from './user.entity';
 import { Game } from './game.entity';
 
 @Entity({ name: 'favourites' })
+@Index(['user', 'game'], {unique:true})
 export class Favourite {
 
   @PrimaryGeneratedColumn('uuid')

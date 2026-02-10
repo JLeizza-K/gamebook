@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Index,
   ManyToOne,
   PrimaryGeneratedColumn,
   DeleteDateColumn,
@@ -11,6 +12,8 @@ import {
 import { User } from './user.entity';
 import { Game } from './game.entity';
 
+
+@Index(['user', 'game'], {unique:true})
 @Entity({ name: 'scores' })
 export class Score {
   @PrimaryGeneratedColumn('uuid')
