@@ -8,6 +8,6 @@ export const AppDataSource = new DataSource({
     username: 'user',
     password: 'password',
     database: 'mi_db',
-    entities: [User], 
-    migrations: ['./src/migrations/*.ts'],
+    entities: [__dirname + '/**/*.entity{.ts}'],
+    migrations: [__dirname + '/migrations/*{.ts}'],
 });
