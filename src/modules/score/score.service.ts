@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { CreateScoreDto } from '../dto/create-score.dto';
-import { UpdateScoreDto } from '../dto/update-score.dto';
+import { CreateScoreDto } from '../../dto/create-score.dto';
+import { UpdateScoreDto } from '../../dto/update-score.dto';
 
 @Injectable()
 export class ScoreService {
