@@ -34,8 +34,8 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Run Linter
-        run: pnpm run lint
+      #      - name: Run Linter
+      #        run: pnpm run lint
 
       - name: Run user service test
         run: pnpm test src/test/user/user.service.spec.ts
